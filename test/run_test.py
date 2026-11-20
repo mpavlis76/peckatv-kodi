@@ -159,9 +159,13 @@ try:
                                    time.strftime('%H:%M', time.localtime(st)), '%d.%m.%Y') == st - st % 60
         assert context.parse_start('11/21/2026', '7:05 PM', '%m/%d/%Y') == int(time.mktime((2026, 11, 21, 19, 5, 0, 0, 0, -1)))
         assert context.parse_start('', '20:00', '%d.%m.%Y') is None
+        assert context.start_from_path('pvr://guide/0147/' + time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(st)) + '.epg') == st
+        assert context.start_from_date(time.strftime('%d.%m.%Y %H:%M', time.localtime(st)), '%d.%m.%Y') == st - st % 60
+        assert context.start_from_path('pvr://channels/tv/x/') is None
+        # real Kodi 22 labels (20. 11. 2026): StartDate is the long date, FileNameAndPath carries UTC start
         xbmc.INFO.update({'ListItem.ChannelName': chname, 'ListItem.Title': q['name'], 'ListItem.EpgEventTitle': q['name'],
-                          'ListItem.StartDate': time.strftime('%d.%m.%Y', time.localtime(st)),
-                          'ListItem.StartTime': time.strftime('%H:%M', time.localtime(st))})
+                          'ListItem.StartDate': 'Pátek, 20. listopad 2026', 'ListItem.Date': '',
+                          'ListItem.FileNameAndPath': 'pvr://guide/0147/%s.epg' % time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(st))})
         xbmc.BUILTINS.clear()
         context.main()
         cmd = xbmc.BUILTINS[-1]
