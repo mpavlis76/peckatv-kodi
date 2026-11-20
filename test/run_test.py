@@ -149,6 +149,33 @@ try:
         go('?' + url.split('?', 1)[1].replace('action=broadcast_menu', 'action=record_series'))
         path, body = ADDED[-1]
         assert path == 'api/device/addPeriodicPvr' and body['id_show'] and body['id_channel'] == 643, ADDED[-1]
+        # Kodi TV guide context menu -> guide_record (channel name + localized start date/time)
+        from urllib.parse import parse_qsl, urlencode
+        q = dict(parse_qsl(url.split('?', 1)[1]))
+        chname = [i for i in go('?action=program')[0] if 'id=643' in i[1]][0][0]
+        st = int(q['start'])
+        import context, xbmc
+        assert context.parse_start(time.strftime('%d.%m.%Y', time.localtime(st)),
+                                   time.strftime('%H:%M', time.localtime(st)), '%d.%m.%Y') == st - st % 60
+        assert context.parse_start('11/21/2026', '7:05 PM', '%m/%d/%Y') == int(time.mktime((2026, 11, 21, 19, 5, 0, 0, 0, -1)))
+        assert context.parse_start('', '20:00', '%d.%m.%Y') is None
+        xbmc.INFO.update({'ListItem.ChannelName': chname, 'ListItem.Title': q['name'], 'ListItem.EpgEventTitle': q['name'],
+                          'ListItem.StartDate': time.strftime('%d.%m.%Y', time.localtime(st)),
+                          'ListItem.StartTime': time.strftime('%H:%M', time.localtime(st))})
+        xbmc.BUILTINS.clear()
+        context.main()
+        cmd = xbmc.BUILTINS[-1]
+        assert cmd.startswith('RunPlugin(plugin://plugin.video.peckatv/?action=guide_record'), cmd
+        ADDED.clear()
+        go(cmd[len('RunPlugin(plugin://plugin.video.peckatv/'):-1])
+        assert xbmcgui.SELECTS[-1][0] == 'Nahrát', xbmcgui.SELECTS[-1]
+        path, body = ADDED[-1]
+        assert path == 'api/device/addPvr' and body['id_broadcast'] == int(q['bid']), ADDED[-1]
+        n = len(xbmcgui.NOTES)
+        go('?' + urlencode({'action': 'guide_record', 'channel': chname, 'title': 'x', 'start': st + 3 * 3600 * 24 * 30}))
+        assert len(xbmcgui.NOTES) == n + 1 and 'nenalezen' in xbmcgui.NOTES[-1][1], xbmcgui.NOTES[-1]
+        go('?' + urlencode({'action': 'guide_record', 'channel': 'Neexistující', 'title': 'x', 'start': st}))
+        assert 'nenalezen' in xbmcgui.NOTES[-1][1], xbmcgui.NOTES[-1]
     finally:
         plugin.time.time = _real_time
 

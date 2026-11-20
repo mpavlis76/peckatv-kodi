@@ -8,3 +8,7 @@ class Monitor:
 
 BUILTINS=[]
 def executebuiltin(c): BUILTINS.append(c)
+INFO={}
+def getInfoLabel(k): return INFO.get(k,'')
+REGION={'dateshort':'%d.%m.%Y','time':'%H:%M:%S'}
+def getRegion(k): return REGION.get(k,'')

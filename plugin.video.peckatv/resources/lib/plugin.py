@@ -397,6 +397,46 @@ class Router(object):
         self.params = {k: str(v) for k, v in opts[i][1].items()}
         self.dispatch()
 
+    @staticmethod
+    def _norm(name):
+        return ' '.join((name or '').casefold().split())
+
+    def _find_guide_broadcast(self, c, start, title):
+        """Broadcast on channel c starting at `start` (local ts, minute precision), title as tie-break."""
+        day = time.strftime('%Y-%m-%d', time.localtime(start))
+        cands = [b for b in self._day_broadcasts(c, day) if abs(b['timestamp_start'] - start) <= 120]
+        if len(cands) > 1 and title:
+            exact = [b for b in cands if self._norm(b.get('name')) == self._norm(title)]
+            cands = exact or cands
+        return min(cands, key=lambda b: abs(b['timestamp_start'] - start)) if cands else None
+
+    def guide_record(self):
+        """Entry point from the Kodi TV guide context menu (context.py)."""
+        name = self.params.get('channel', '')
+        title = self.params.get('title', '')
+        c = next((x for x in self.api.channels() if self._norm(x['name']) == self._norm(name)), None)
+        if not c:
+            ku.notify('Kanál %s v Pecka.TV nenalezen' % name, True)
+            return
+        if not self.params.get('start'):
+            ku.notify('Nepodařilo se zjistit čas pořadu', True)
+            return
+        b = self._find_guide_broadcast(c, int(self.params['start']), title)
+        if not b:
+            ku.notify('Pořad %s v programu Pecka.TV nenalezen' % title, True)
+            return
+        ku.log('guide_record %s / %s -> broadcast %s' % (name, title, b.get('id')))
+        opts = self._record_options(c, b)
+        if not opts:
+            ku.notify('Tento pořad nelze nahrát')
+            return
+        t = time.strftime('%H:%M', time.localtime(b['timestamp_start']))
+        i = xbmcgui.Dialog().select('%s  %s %s' % (c['name'], t, b.get('name', '')), [o[0] for o in opts])
+        if i < 0:
+            return
+        self.params = {k: str(v) for k, v in opts[i][1].items()}
+        self.dispatch()
+
     def record(self):
         b = self._bc_from_params()
         self.api.add_recording(self.params['id'], b)
