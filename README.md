@@ -10,6 +10,7 @@ Není nijak spojen s provozovatelem služby – pro použití je nutné vlastní
 - **plánování nahrávek** – *Program a nahrávání* (7 dní dopředu): kliknutím na pořad *Nahrát*
   nebo *Nahrávat všechny díly*; totéž v kontextovém menu u živého vysílání a v archivu;
   sériová nahrávání lze zrušit v *Nahrávky → Sériová nahrávání*
+- **nahrávání z TV průvodce Kodi** (IPTV Simple) – v kontextovém menu pořadu *Nahrát (Pecka.TV)*
 - export M3U + XMLTV pro **PVR IPTV Simple Client** (ručně i automaticky službou na pozadí)
 - kontrola limitu souběžných streamů
 
@@ -44,6 +45,10 @@ a archiv přímo z průvodce.
    - *Catchup*: **Povolit catchup** (odkazy na archiv už M3U obsahuje)
 4. Restartuj Kodi. V hlavním menu (Estuary) se objeví **TV**; pokud ne, zapni ji v
    *Nastavení → Vzhled → Konfigurovat vzhled → Položky hlavního menu*.
+5. **Nahrávání z průvodce** – na pořadu otevři kontextové menu a zvol *Nahrát (Pecka.TV)*:
+   doplněk podle kanálu a času najde pořad v Pecka.TV a nabídne *Nahrát*, *Nahrávat všechny díly*
+   nebo *Smazat nahrávku*. Vestavěné *Přidat časovač* s IPTV Simple nenahrává a průvodce
+   naplánované nahrávky neoznačí (vidíš je v *Pecka.TV → Nahrávky*).
 
 **Průvodce je prázdný?**
 - Vygeneruj soubory znovu (*Vygenerovat teď*) a zkontroluj, že `peckatv.xml` obsahuje pořady
@@ -55,7 +60,9 @@ a archiv přímo z průvodce.
 
 ## Stav
 - Živé vysílání, archiv a EPG / IPTV Simple: funkční.
-- Nahrávky a jejich plánování (0.2.0–0.3.0): podle API webové aplikace, ověřeno offline testem.
+- Nahrávky a jejich plánování (0.2.0–0.3.0): podle API webové aplikace; přehrávání, naplánování
+  a smazání nahrávky ověřeno i na ostrém účtu (CoreELEC 22), sériové nahrávání jen offline testem.
+- Nahrávání z TV průvodce Kodi (0.4.0): ověřeno na CoreELEC 22 (Kodi 22 RC2) s ostrým účtem.
 - Přihlášení e-mailem/heslem: zatím neověřeno.
 
 ## Řešení problémů
